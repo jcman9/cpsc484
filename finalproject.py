@@ -106,17 +106,28 @@ maxcosine = dhairs/sqrt(rhairs**2+dhairs**2) # if ray inside crosshairs, don't m
 haircolor = color.black
 roam = 0
 
+def keyInput(evt):
+    s = evt.key
+    if len(s) == 1:
+        if (s == 'w'):
+            print("w is pressed")
+        elif (s == 's'):
+            print("s is pressed")
+        elif (s == 'a'):
+            print("a is pressed")
+        elif (s == 'd'):
+            print("d is pressed")
 
-# Toggle roam option
+scene.bind('keydown', keyInput)
+
 while True:
-    rate(30)
-    if scene.kb.keys: # event waiting to be processed?
-        s = scene.kb.getkey() # get keyboard info
-        if len(s) == 1: 
-            if s == 'w' or s == 'W':
-                roam == True
-            else:
-                roam == False
+    # Toggle roam option
+    if scene.mouse.events:
+        m = scene.mouse.getevent()
+        if m.press or m.drag:
+            roam = True
+        elif m.release or m.drop:
+            roam = False
 
     # If in roaming mode, change center and forward according to mouse position
     if roam:
