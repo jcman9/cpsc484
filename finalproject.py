@@ -107,10 +107,12 @@ haircolor = color.black
 roam = 0
 
 def keyInput(evt):
+    global roam
     s = evt.key
     if len(s) == 1:
         if (s == 'w'):
             print("w is pressed")
+            roam = True
         elif (s == 's'):
             print("s is pressed")
         elif (s == 'a'):
@@ -118,16 +120,14 @@ def keyInput(evt):
         elif (s == 'd'):
             print("d is pressed")
 
+def keyRelease(evt):
+    global roam
+    roam = False
+
 scene.bind('keydown', keyInput)
+scene.bind('keyup', keyRelease)
 
 while True:
-    # Toggle roam option
-    if scene.mouse.events:
-        m = scene.mouse.getevent()
-        if m.press or m.drag:
-            roam = True
-        elif m.release or m.drop:
-            roam = False
 
     # If in roaming mode, change center and forward according to mouse position
     if roam:
