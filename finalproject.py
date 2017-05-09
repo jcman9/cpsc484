@@ -108,37 +108,117 @@ roam = 0
 
 def keyInput(evt):
     global roam
+    global forward, backwards, left, right, jump
     s = evt.key
     if len(s) == 1:
         if (s == 'w'):
             print("w is pressed")
-            roam = True
+            #scene.center = (scene.center + (0,0,-1))
+            #roam = True
+            forward = True
         elif (s == 's'):
             print("s is pressed")
+            #scene.center = (scene.center + (0,0,1))
+            #roam = True
+            backwards = True
         elif (s == 'a'):
             print("a is pressed")
+            #scene.center = (scene.center + (-1, 0, 0))
+            #roam = True
+            left = True
         elif (s == 'd'):
             print("d is pressed")
+            #scene.center = (scene.center + (1, 0, 0))
+            #roam = True
+            right = True
+        elif (s == ' '):
+            print("Space is pressed")
+            jump = True
 
 def keyRelease(evt):
-    global roam
-    roam = False
+    #global roam
+    global forward, backwards, left, right, jump
+    s = evt.key
+    if len(s) == 1:
+        if (s == 'w'):
+            print("w is released")
+            #scene.center = (scene.center + (0,0,-1))
+            #roam = True
+            forward = False
+        elif (s == 's'):
+            print("s is released")
+            #scene.center = (scene.center + (0,0,1))
+            #roam = True
+            backwards = False
+        elif (s == 'a'):
+            print("a is released")
+            #scene.center = (scene.center + (-1, 0, 0))
+            #roam = True
+            left = False
+        elif (s == 'd'):
+            print("d is released")
+            #scene.center = (scene.center + (1, 0, 0))
+            #roam = True
+            right = False
+        elif (s == ' '):
+            print("Space is released")
+            jump = False
 
 scene.bind('keydown', keyInput)
 scene.bind('keyup', keyRelease)
 
+global forward, backwards, left, right
+forward = False
+backwards = False
+left = False
+right = False
+jump = False
+
 while True:
 
+    
+
+
+
     # If in roaming mode, change center and forward according to mouse position
-    if roam:
-        ray = scene.mouse.ray
-        if abs(dot(ray,scene.forward)) < maxcosine: # do something only if outside crosshairs
-            newray = norm(vector(ray.x, 0, ray.z))
-            angle = arcsin(dot(cross(scene.forward,newray),scene.up))
-            newforward = rotate(scene.forward, axis=scene.up, angle=angle/30)
-            scene.center = scene.mouse.camera+newforward*mag(scene.center-scene.mouse.camera)
-            scene.forward = newforward
-            scene.center = scene.center+scene.forward*ray.y/2.
+    if forward:
+        ray = (scene.center + (0,0,-.25))
+        #if abs(dot(ray,scene.forward)) < maxcosine: # do something only if outside crosshairs
+         #   newray = norm(vector(ray.x, 0, ray.z))
+          #  angle = arcsin(dot(cross(scene.forward,newray),scene.up))
+           # newforward = rotate(scene.forward, axis=scene.up, angle=angle/30)
+           # scene.center = scene.mouse.camera+newforward*mag(scene.center-scene.mouse.camera)
+           # scene.forward = newforward
+        scene.center = ray
+
+    elif backwards:
+        ray = (scene.center + (0,0,.25))
+        #if abs(dot(ray,scene.forward)) < maxcosine: # do something only if outside crosshairs
+         #   newray = norm(vector(ray.x, 0, ray.z))
+          #  angle = arcsin(dot(cross(scene.forward,newray),scene.up))
+           # newforward = rotate(scene.forward, axis=scene.up, angle=angle/30)
+           # scene.center = scene.mouse.camera+newforward*mag(scene.center-scene.mouse.camera)
+           # scene.forward = newforward
+        scene.center = ray
+
+    if left:
+        ray = (scene.center + (-.25,0,0))
+        #if abs(dot(ray,scene.forward)) < maxcosine: # do something only if outside crosshairs
+         #   newray = norm(vector(ray.x, 0, ray.z))
+          #  angle = arcsin(dot(cross(scene.forward,newray),scene.up))
+           # newforward = rotate(scene.forward, axis=scene.up, angle=angle/30)
+           # scene.center = scene.mouse.camera+newforward*mag(scene.center-scene.mouse.camera)
+           # scene.forward = newforward
+        scene.center = ray
+    elif  right:
+        ray = (scene.center + (.25,0,0))
+        #if abs(dot(ray,scene.forward)) < maxcosine: # do something only if outside crosshairs
+         #   newray = norm(vector(ray.x, 0, ray.z))
+          #  angle = arcsin(dot(cross(scene.forward,newray),scene.up))
+           # newforward = rotate(scene.forward, axis=scene.up, angle=angle/30)
+           # scene.center = scene.mouse.camera+newforward*mag(scene.center-scene.mouse.camera)
+           # scene.forward = newforward
+        scene.center = ray
 
     # Roll the log
     theta = theta + omega*dt
