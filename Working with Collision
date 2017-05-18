@@ -43,8 +43,17 @@ floor1 = box(pos = (0,0,-25), size = (.2,2,50), axis=(0,1,0), color = color.oran
 #floor 2 z values go from (0,0,-55) to (0,0,-105)
 floor2 = box(pos = (0,0,-80), size = (.2,2,50), axis = (0,1,0), color = color.orange, material = materials.wood)
 
-#movingPlatform z values go from (0,0,-110) to (0,0,-120)
+#movingPlatform z values go from (0,0,-107.5) to (0,0,-112.5)
 movingPlatform = box(pos = (0,0, -110), size = (.2,10,5), axis = (0,1,0), color = color.orange, material = materials.wood)
+
+#movingPlatform2 z values go from (0,0,-115) to (0,0,-120)
+movingPlatform2 = box(pos = (0,0, -117.5), size = (.2,10,5), axis = (0,1,0), color = color.orange, material = materials.wood)
+
+#movingPlatform3 z values go from (0,0,-122.5) to (0,0,-127.5)
+movingPlatform3 = box(pos = (0,0,-125), size = (.2,10,5), axis = (0,1,0), color = color.orange, material = materials.wood)
+
+#floor3 z values go from (0,0,-130) to (0,0,-135)
+floor3 = box(pos =(0,5, -132.5), size = (.2,10,5), axis = (0,1,0), color = color.orange, material = materials.wood)
 
 player = box (pos = (0,1.1,-2), size = (2,2,2), axis = (0,1,0), color = color.blue)
 
@@ -160,6 +169,9 @@ scene.bind('keydown', keyInput)
 scene.bind('keyup', keyRelease)
 
 global forward, backwards, left, right, jump, ray, falling, v_Platform, v0_Platform, dtPlatform
+global dtPlatform2, v_Platform2, v0_Platform2
+global dtPlatform3, v_Platform3, v0_Platform3
+global gameover
 forward = False
 backwards = False
 left = False
@@ -167,9 +179,20 @@ right = False
 jump = False
 falling = False
 ray = (0,0,0)
+
+gameover = False
+
 v_Platform = 1
 v0_Platform = 1
 dtPlatform = .1
+
+v_Platform2 = -1
+v0_Platform2 = -1
+dtPlatform2 = .125
+
+v_Platform3 = 1
+v0_Platform3 = 1
+dtPlatform3 = .1
 
 while True:
 
@@ -183,6 +206,18 @@ while True:
     elif movingPlatform.pos.x <= -20:
         v_Platform = v0_Platform
     movingPlatform.pos.x = movingPlatform.pos.x + v_Platform *dtPlatform
+
+    if movingPlatform2.pos.x >= 20:
+        v_Platform2 = v0_Platform2
+    elif movingPlatform2.pos.x <= -20:
+        v_Platform2 = -v0_Platform2
+    movingPlatform2.pos.x = movingPlatform2.pos.x + v_Platform2 * dtPlatform2
+
+    if movingPlatform3.pos.y <= 0:
+        v_Platform3 = v0_Platform3
+    elif movingPlatform3.pos.y >= 5:
+        v_Platform3 = -v0_Platform3
+    movingPlatform3.pos.y = movingPlatform3.pos.y + v_Platform3 * dtPlatform3
 
     #Begining of movement code
     if forward:
@@ -212,8 +247,10 @@ while True:
         falling = True
     #End of Movement Code
 
-    #set max height of player to 5
-    if player.pos.y >= 5:
+    #set max height of player jump
+    if player.pos.y >= 5 and 0 >= player.pos.z >= -120:
+        ray = (ray[0], 0, ray[2])
+    elif player.pos.y >= 10 and -122.5 >= player.pos.z >= -135:
         ray = (ray[0], 0, ray[2])
 
     #if player and first box share a position they collided, move back one spot to stop collision
@@ -221,15 +258,18 @@ while True:
 
     ##COLLISION DETECTION GOES HERE
 
-    ##ADD any gaps between platforms here
-    if player.pos.z >= 2:
-        falling = True
-    elif -50 > player.pos.z > -55:
-        falling = True
-    elif -105 > player.pos.z > -110:
-        falling = True
-    elif player.pos.z < -112.5:
-        falling = True
+    ##Dont need to do this anymore, keeping her for now till we finish
+    ##ADD any gaps between platforms here 
+    #if player.pos.z >= floor1.pos.z + player.size.z:
+    #    falling = True
+##    elif floor1.pos.z - - floor1.size.z > player.pos.z > floor2.pos.z - floor2.size.z:
+##        falling = True
+##    elif floor2.pos.z - floor2.size.z > player.pos.z > movingPlatform.pos.z - movingPlatform.size.z:
+##        falling = True
+##    elif player.pos.z < -112.5:
+##        falling = True
+
+    falling = True
 
     ##Beggining of Floor1 Collision
 
@@ -277,7 +317,7 @@ while True:
 
     #print(player.pos)
     if not(jump) and -107.5 >= player.pos.z >= -112.5:
-        print("movingPlatform")
+        #print("movingPlatform")
         if(player.pos.x < (movingPlatform.pos.x - 5)) or (player.pos.x > (movingPlatform.pos.x + 5)):
             falling = True
         elif player.pos.y <= 1.1:
@@ -287,7 +327,54 @@ while True:
             falling = True       
 
     ##End of movingPlatform Collision
-        
+
+    ##Beggining of movingPlatform2 Collision
+
+    if not(jump) and -115 >= player.pos.z >= -120:
+        #print("movingPlatform")
+        if(player.pos.x < (movingPlatform2.pos.x - 5)) or (player.pos.x > (movingPlatform2.pos.x + 5)):
+            falling = True
+        elif player.pos.y <= 1.1:
+            falling = False
+            player.pos.x = player.pos.x + (v_Platform2 * dtPlatform2)
+        elif player.pos.y > 1.1:
+            falling = True
+
+    ##End of movingPlatform2 Collision
+
+    ##Beggining of movingPlatform3 Collision
+
+    if not(jump) and -122.5 >= player.pos.z >= -127.5:
+        #print("movingPlatform")
+        if(player.pos.x < (movingPlatform3.pos.x - 5)) or (player.pos.x > (movingPlatform3.pos.x + 5)):
+            falling = True
+        elif player.pos.y <= movingPlatform3.pos.y + 1:
+            falling = False
+            player.pos.y = player.pos.y + (v_Platform3 * dtPlatform3)
+        elif player.pos.y > movingPlatform3.pos.y + 1:
+            falling = True
+            
+    ##End of movingPlatform3 Collision
+
+    ##Beggining of floor3 Collision
+            
+    if not(jump) and -130 >= player.pos.z >= -135:
+        if (player.pos.x <= floor3.pos.x - 5 or player.pos.x >= floor3.pos.x + 5):
+            falling = True
+        #elif 5 <= player.pos.y <= 5.2:
+        elif not(jump) and player.pos.y - 1 > floor3.pos.y + .1:
+            falling = True
+        elif not(jump) and player.pos.y - 1 <= floor3.pos.y +.1:
+            falling = False
+            gameover = True
+
+
+    ##End of floor3 Collision
+
+
+    if gameover == True:
+        print("Congratulations you WIN!")
+        break    
     if falling and not(jump):
         ray = (ray[0], -.15, ray[1])
 
