@@ -12,7 +12,7 @@ backward; right or left rotates your direction of motion.
 # A surreal scene that illustrates many of the features of VPython
 
 scene.title = "3D Platformer"
-##scene.stereo = 'redcyan'
+##scene.stereo = 'redcyan'````
 scene.height = 1000
 scene.width = 1000
 scene.range = (1,1,1)
@@ -35,12 +35,17 @@ photocenter = 0.15*w
 #floor = box(pos=(0,-0.1,0),size=(0.2,15,15), axis=(0,1,0), color=color.orange, material=materials.wood)
 #floor = box(pos=(0,0.1,20),size=(0.2,10,10), axis=(0,1,0), color=color.orange, material=materials.wood)
 #floor = box(pos=(0,0.1,-20),size=(0.2,10,10), axis=(0,1,0), color=color.orange, material=materials.wood)
+
+#floor1 z values go from (0,0,0) to (0,0,-50)
 floor1 = box(pos = (0,0,-25), size = (.2,2,50), axis=(0,1,0), color = color.orange, material = materials.wood)
+#floor 2 z values go from (0,0,-55) to (0,0,-105)
 floor2 = box(pos = (0,0,-80), size = (.2,2,50), axis = (0,1,0), color = color.orange, material = materials.wood)
 
-player = box (pos = (0,1.1,0), size = (2,2,2), axis = (0,1,0), color = color.blue)
+player = box (pos = (0,1.1,-2), size = (2,2,2), axis = (0,1,0), color = color.blue)
 
+#first box z values go from (0,0,-18) to (0,0,-22)
 firstBox = box(pos = (0,1,-20), size = (2,2,2), axis = (0,1,0), color = color.orange, material = materials.wood)
+
 ### Here is the code used to create the cactus flower display
 ##import Image # Must install PIL, the Python Imaging Library
 ##name = "flower"
@@ -116,7 +121,7 @@ firstBox = box(pos = (0,1,-20), size = (2,2,2), axis = (0,1,0), color = color.or
 
 def keyInput(evt):
     global roam
-    global forward, backwards, left, right, jump, debug
+    global forward, backwards, left, right, jump
     s = evt.key
     if len(s) == 1:
         if (s == 'w'):
@@ -129,8 +134,6 @@ def keyInput(evt):
             right = True
         elif (s == ' '):
             jump = True
-        elif (s == 'q'):
-            debug = True
 
 def keyRelease(evt):
     #global roam
@@ -147,57 +150,26 @@ def keyRelease(evt):
             right = False
         elif (s == ' '):
             jump = False
-        elif (s == 'q'):
-            debug = False
 
 scene.bind('keydown', keyInput)
 scene.bind('keyup', keyRelease)
 
-global forward, backwards, left, right, jump, ray, falling, debug
+global forward, backwards, left, right, jump, ray, falling
 forward = False
 backwards = False
 left = False
 right = False
 jump = False
 falling = False
-debug = False
 ray = (0,0,0)
-
-print("firstBox Coords", firstBox.pos)
 
 while True:
 
     # If in roaming mode, change center and forward according to mouse position
 
     ray = (0,0,0)
-##    if forward:
-##        if (forward and jump):
-##            ray = (0,.25, -.25)
-##        else:
-##            ray = (0,0,-.25)
-##        #if abs(dot(ray,scene.forward)) < maxcosine: # do something only if outside crosshairs
-##         #   newray = norm(vector(ray.x, 0, ray.z))
-##          #  angle = arcsin(dot(cross(scene.forward,newray),scene.up))
-##           # newforward = rotate(scene.forward, axis=scene.up, angle=angle/30)
-##           # scene.center = scene.mouse.camera+newforward*mag(scene.center-scene.mouse.camera)
-##           # scene.forward = newforward
-##        #scene.center = ray
-##    elif backwards:
-##        ray = (0,0,.25)
-##
-##    if jump:
-##        ray = (0,.25,0)
-##        
-##    if left:
-##        ray = (-.25,0,0)
-##    elif right:
-##        ray = (.25,0,0)
-##
-##    if ((not jump) and scene.center.y >= 1.2):
-##        ray = (0,-.25,0)
-##
-##    scene.center = scene.center + ray
 
+    #Begining of movement code
     if forward:
         if (forward and jump):
             ray = (0,.25, -.25)
@@ -219,61 +191,89 @@ while True:
         else:
             ray = (.25,0,0)
     elif jump:
-        ray = (0,.25,0)
+        ray = (0,.1,0)
 
     if jump:
         falling = True
+    #End of Movement Code
 
+    #set max height of player to 5
     if player.pos.y >= 5:
         ray = (ray[0], 0, ray[2])
-
-    #if ((not jump) and player.pos.y >= 1.2):
-    #    ray = (0,-.25,0)
 
     #if player and first box share a position they collided, move back one spot to stop collision
     #if bottom of player cube is lower then top of the firstBox then collide
 
-    #COLLISION DETECTION GOES HERE
-    if player.pos.y - 1 <= floor1.pos.y + .2 or player.pos.y - 1 <= floor2.pos.y + .2:
+    ##COLLISION DETECTION GOES HERE
+
+    ##ADD any gaps between platforms here
+    if player.pos.z >= 2:
+        falling = True
+    elif -50 > player.pos.z > -55:
+        falling = True
+    elif player.pos.z < -105:
+        falling = True
+
+    ##Beggining of Floor1 Collision
+
+    if not(jump) and -50 <= player.pos.z <= 0:
+        if (player.pos.x <= -2 or player.pos.x >= 2):
+            falling = True
+        elif player.pos.y <= 1.1:
+            falling = False
+        elif player.pos.y > 1.1:
+            falling = True
+    
+    ##End of Floor1 Collison
+
+    ##Beggining of Floor2 Collision
+
+    if not(jump) and -105 <= player.pos.z <= -55:
+        if (player.pos.x <= -2 or player.pos.x >= 2):
+            falling = True
+        elif player.pos.y <= 1.1:
+            falling = False
+        elif player.pos.y > 1.1:
+            falling = True
+            
+    ##End of Floor2 Collision
+
+    ##Beggining of firstBox Collision
+    #Collision on top of firstBox
+    if not(jump) and -22 <= player.pos.z <= -18 and player.pos.y <= firstBox.pos.y + 2:
         falling = False
-        
+        #Fall off sides of box
+        if (player.pos.x < -2 or player.pos.x > 2):
+            falling = True
+
     if ((player.pos.z - 1) == (firstBox.pos.z + 1)) and (player.pos.y - 1 < firstBox.pos.y + 1):
         #print("Collided with firstBox")
         ray = (ray[0],ray[1],-ray[2] + 1)
     elif ((player.pos.z + 1) == (firstBox.pos.z - 1)) and (player.pos.y - 1 < firstBox.pos.y + 1):
         #print ("Collided with backside of FirstBox")
-        ray = (ray[0], ray[1], -ray[2] - 1)
-    #If player is along the z coords of the box check if player is on top of it
-    elif (player.pos.z >= firstBox.pos.z - 1) and (player.pos.z <= firstBox.pos.z + 1):
-        #if bottom of player is <= the top of the box then set player y pos to top of box y
-        if player.pos.y - 1 <= firstBox.pos.y + 1:
-            falling = False
-            player.pos.y = firstBox.pos.y + 2
-            #while(falling == False):
-            #    if (player.pos.z + 1 <= firstBox.pos.z - 1) or (player.pos.z -1 >= firstBox.pos.z + 1):
-            #        falling = True    
+        ray = (ray[0], ray[1], -ray[2] - 1) 
 
-    if debug:
-        print(player.pos)
-    if falling and not(jump):
-        ray = (ray[0], -.25, ray[1])
+    ##End of firstBox Collision
         
+    if falling and not(jump):
+        ray = (ray[0], -.15, ray[1])
+
     player.pos = player.pos + ray
     scene.center = player.pos + (0, 0, 5)
-    
-    #Checks for falling off edges go after moving
-    #check of fall of back of starting floor
 
-    if(player.pos.x >= 2 or player.pos.x <= -2):
-        print("You Lose")
-        print("Reset")
-        player.pos = (0,1.1,0)
-        scene.center = (0,0,5)
-##    if(player.pos.z - 1 > 0):
-##        print("Falling")
+    if player.pos.y <= -15:
+        print("You Lose, Resetting")
+        player.pos = (0,1.2,-2)
+        scene.center = player.pos + (0,0,5)
+    
+##    if(player.pos.x >= 2 or player.pos.x <= -2 or player.pos.z > 1.5):
+##        #print("You Lose")
+##        #print("Reset")
+##        print(player.pos)
 ##        falling = True
-##    if(player.pos.z <= firstBox.pos.z - 1) or (player.pos.z >= firstBox.pos.z + 1):
-##        falling = True
+##        #player.pos = (0,1.1,0)
+##        #scene.center = (0,0,5)
+        
     # Roll the log
 ##    theta = theta + omega*dt
 ##    log.x = log.x+v*dt
