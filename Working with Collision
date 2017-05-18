@@ -36,10 +36,15 @@ photocenter = 0.15*w
 #floor = box(pos=(0,0.1,20),size=(0.2,10,10), axis=(0,1,0), color=color.orange, material=materials.wood)
 #floor = box(pos=(0,0.1,-20),size=(0.2,10,10), axis=(0,1,0), color=color.orange, material=materials.wood)
 
+#with axis (0,1,0), size refers to (ylength, xlength, zlength)
 #floor1 z values go from (0,0,0) to (0,0,-50)
 floor1 = box(pos = (0,0,-25), size = (.2,2,50), axis=(0,1,0), color = color.orange, material = materials.wood)
+
 #floor 2 z values go from (0,0,-55) to (0,0,-105)
 floor2 = box(pos = (0,0,-80), size = (.2,2,50), axis = (0,1,0), color = color.orange, material = materials.wood)
+
+#movingPlatform z values go from (0,0,-110) to (0,0,-120)
+movingPlatform = box(pos = (0,0, -110), size = (.2,10,5), axis = (0,1,0), color = color.orange, material = materials.wood)
 
 player = box (pos = (0,1.1,-2), size = (2,2,2), axis = (0,1,0), color = color.blue)
 
@@ -154,7 +159,7 @@ def keyRelease(evt):
 scene.bind('keydown', keyInput)
 scene.bind('keyup', keyRelease)
 
-global forward, backwards, left, right, jump, ray, falling
+global forward, backwards, left, right, jump, ray, falling, v_Platform, v0_Platform, dtPlatform
 forward = False
 backwards = False
 left = False
@@ -162,12 +167,22 @@ right = False
 jump = False
 falling = False
 ray = (0,0,0)
+v_Platform = 1
+v0_Platform = 1
+dtPlatform = .1
 
 while True:
 
     # If in roaming mode, change center and forward according to mouse position
 
     ray = (0,0,0)
+
+    ##Moving Platform movement
+    if movingPlatform.pos.x >= 20:
+        v_Platform = -v0_Platform
+    elif movingPlatform.pos.x <= -20:
+        v_Platform = v0_Platform
+    movingPlatform.pos.x = movingPlatform.pos.x + v_Platform *dtPlatform
 
     #Begining of movement code
     if forward:
@@ -211,7 +226,9 @@ while True:
         falling = True
     elif -50 > player.pos.z > -55:
         falling = True
-    elif player.pos.z < -105:
+    elif -105 > player.pos.z > -110:
+        falling = True
+    elif player.pos.z < -112.5:
         falling = True
 
     ##Beggining of Floor1 Collision
@@ -239,6 +256,7 @@ while True:
     ##End of Floor2 Collision
 
     ##Beggining of firstBox Collision
+
     #Collision on top of firstBox
     if not(jump) and -22 <= player.pos.z <= -18 and player.pos.y <= firstBox.pos.y + 2:
         falling = False
@@ -254,6 +272,21 @@ while True:
         ray = (ray[0], ray[1], -ray[2] - 1) 
 
     ##End of firstBox Collision
+
+    ##Beggining of movingPlatform Collision
+
+    #print(player.pos)
+    if not(jump) and -107.5 >= player.pos.z >= -112.5:
+        print("movingPlatform")
+        if(player.pos.x < (movingPlatform.pos.x - 5)) or (player.pos.x > (movingPlatform.pos.x + 5)):
+            falling = True
+        elif player.pos.y <= 1.1:
+            falling = False
+            player.pos.x = player.pos.x + (v_Platform * dtPlatform)
+        elif player.pos.y > 1.1:
+            falling = True       
+
+    ##End of movingPlatform Collision
         
     if falling and not(jump):
         ray = (ray[0], -.15, ray[1])
@@ -265,14 +298,8 @@ while True:
         print("You Lose, Resetting")
         player.pos = (0,1.2,-2)
         scene.center = player.pos + (0,0,5)
-    
-##    if(player.pos.x >= 2 or player.pos.x <= -2 or player.pos.z > 1.5):
-##        #print("You Lose")
-##        #print("Reset")
-##        print(player.pos)
-##        falling = True
-##        #player.pos = (0,1.1,0)
-##        #scene.center = (0,0,5)
+
+
         
     # Roll the log
 ##    theta = theta + omega*dt
