@@ -298,11 +298,13 @@ while True:
     if not(jump) and -50 <= player.pos.z <= 0:
         if (player.pos.x <= -2 or player.pos.x >= 2):
             falling = True
+            peakHeight = True
         elif player.pos.y <= 1.1:
             falling = False
             peakHeight = False
         elif player.pos.y > 1.1:
             falling = True
+            peakHeight = True
     
     ##End of Floor1 Collison
 
@@ -311,11 +313,13 @@ while True:
     if not(jump) and -105 <= player.pos.z <= -55:
         if (player.pos.x <= -2 or player.pos.x >= 2):
             falling = True
+            peakHeight = True
         elif player.pos.y <= 1.1:
             falling = False
             peakHeight = False
         elif player.pos.y > 1.1:
             falling = True
+            peakHeight = True
             
     ##End of Floor2 Collision
 
@@ -324,9 +328,11 @@ while True:
     #Collision on top of firstBox
     if not(jump) and -22 <= player.pos.z <= -18 and player.pos.y <= firstBox.pos.y + 2:
         falling = False
+        peakHeight = False
         #Fall off sides of box
         if (player.pos.x < -2 or player.pos.x > 2):
             falling = True
+            peakHeight = True
 
     if ((player.pos.z - 1) == (firstBox.pos.z + 1)) and (player.pos.y - 1 < firstBox.pos.y + 1):
         #print("Collided with firstBox")
@@ -344,11 +350,14 @@ while True:
         #print("movingPlatform")
         if(player.pos.x < (movingPlatform.pos.x - 5)) or (player.pos.x > (movingPlatform.pos.x + 5)):
             falling = True
+            peakHeight = True
         elif player.pos.y <= 1.1:
             falling = False
+            peakHeight = False
             player.pos.x = player.pos.x + (v_Platform * dtPlatform)
         elif player.pos.y > 1.1:
-            falling = True       
+            falling = True
+            peakHeight = True
 
     ##End of movingPlatform Collision
 
@@ -358,11 +367,14 @@ while True:
         #print("movingPlatform")
         if(player.pos.x < (movingPlatform2.pos.x - 5)) or (player.pos.x > (movingPlatform2.pos.x + 5)):
             falling = True
+            peakHeight = True
         elif player.pos.y <= 1.1:
             falling = False
+            peakHeight = False
             player.pos.x = player.pos.x + (v_Platform2 * dtPlatform2)
         elif player.pos.y > 1.1:
             falling = True
+            peakHeight = True
 
     ##End of movingPlatform2 Collision
 
@@ -372,11 +384,14 @@ while True:
         #print("movingPlatform")
         if(player.pos.x < (movingPlatform3.pos.x - 5)) or (player.pos.x > (movingPlatform3.pos.x + 5)):
             falling = True
+            peakHeight = True
         elif player.pos.y <= movingPlatform3.pos.y + 1:
             falling = False
+            peakHeight = False
             player.pos.y = player.pos.y + (v_Platform3 * dtPlatform3)
         elif player.pos.y > movingPlatform3.pos.y + 1:
             falling = True
+            peakHeight = True
             
     ##End of movingPlatform3 Collision
 
@@ -385,11 +400,14 @@ while True:
     if not(jump) and -130 >= player.pos.z >= -135:
         if (player.pos.x <= floor3.pos.x - 5 or player.pos.x >= floor3.pos.x + 5):
             falling = True
+            peakHeight = True
         #elif 5 <= player.pos.y <= 5.2:
         elif not(jump) and player.pos.y - 1 > floor3.pos.y + .1:
             falling = True
+            peakHeight = True
         elif not(jump) and player.pos.y - 1 <= floor3.pos.y +.1:
             falling = False
+            peakHeight = False
             gameover = True
 
     ##End of floor3 Collision
