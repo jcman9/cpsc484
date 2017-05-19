@@ -206,7 +206,7 @@ while True:
 
     ray = (0,0,0)
 
-    ##Moving Platform movement
+    ##Object Movement
     if movingPlatform.pos.x >= 20:
         v_Platform = -v0_Platform
     elif movingPlatform.pos.x <= -20:
@@ -225,6 +225,19 @@ while True:
         v_Platform3 = -v0_Platform3
     movingPlatform3.pos.y = movingPlatform3.pos.y + v_Platform3 * dtPlatform3
 
+    # Roll the log
+    theta = theta + omega*dt
+    #print (theta)
+    #print (omega)
+    log.z = log.z+v*dt
+    log.rotate(angle=omega*dt)
+    if log.z >= -55:
+       v = -v0
+       omega = -v/rlog
+    if log.z <= -105:
+        v = +v0
+        omega = -v/rlog
+        
     #Begining of movement code
     if forward:
         if (forward and jump):
@@ -374,9 +387,20 @@ while True:
             falling = False
             gameover = True
 
-
     ##End of floor3 Collision
 
+    #Beggining Log Collision
+
+    if not(jump) and -55 >= player.pos.z >= -105:
+        if not(jump) and log.pos.y - .5 <= player.pos.y - 1 <= log.pos.y + .5 and log.pos.z - .5 <= player.pos.z <= log.pos.z + .5:
+            print("top")
+            player.pos.z = player.pos.z + 2 * v
+        #Checks if Player sides are hitting log
+        elif not(jump) and ((log.pos.z + .5 >= player.pos.z - 1 >= log.pos.z - .5) or log.pos.z + .5 >= player.pos.z + 1 >= log.pos.z - .5):
+            #print("side")
+            player.pos.z = player.pos.z + v * dt
+
+    #End of Log Collision
 
     if gameover == True:
         print("Congratulations you WIN!")
@@ -391,30 +415,7 @@ while True:
         print("You Lose, Resetting")
         player.pos = (0,1.2,-2)
         scene.center = player.pos + (0,0,5)
-
-
         
-    # Roll the log
-    theta = theta + omega*dt
-    print (theta)
-    print (omega)
-    log.z = log.z+v*dt
-    log.rotate(angle=omega*dt)
-    if log.z >= -55:
-       v = -v0
-       omega = -v/rlog
-####        if rightstop.color == color.red:
-####            rightstop.color = color.blue
-####        else:
-####            rightstop.color = color.red
-    if log.z <= -105:
-        v = +v0
-        omega = -v/rlog
-##        if leftstop.color == color.red:
-##            leftstop.color = color.blue
-##        else:
-##            leftstop.color = color.red
-##
 ##    # Move the cloud
 ##    cloud.rotate(angle=omegacloud*dt, origin=(0,0,0), axis=(0,1,0))
 ##
