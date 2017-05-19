@@ -2,10 +2,10 @@ from visual import *
 import time
 
 print("""
-Press to enter roaming mode, release to exit roaming mode.
-In roaming mode, with the mouse button down, move the mouse
-above or below the center of the scene to move forward or
-backward; right or left rotates your direction of motion.
+Use "W,S,A,D" for moving forwards, backwards, left and right respectively. Use spacebar
+to jump over gaps and jump onto platforms. If you fall, the game resets.
+
+Created by Richard Erdtsieck and Josh Manulat
 """)
 
 
@@ -177,6 +177,7 @@ scene.bind('keyup', keyRelease)
 global forward, backwards, left, right, jump, ray, falling, v_Platform, v0_Platform, dtPlatform
 global dtPlatform2, v_Platform2, v0_Platform2
 global dtPlatform3, v_Platform3, v0_Platform3
+global peakHeight
 global gameover
 forward = False
 backwards = False
@@ -184,6 +185,7 @@ left = False
 right = False
 jump = False
 falling = False
+peakHeight = False
 ray = (0,0,0)
 
 gameover = False
@@ -237,29 +239,32 @@ while True:
     if log.z <= -105:
         v = +v0
         omega = -v/rlog
+
+    if peakHeight == True:
+        jump = False
         
     #Begining of movement code
     if forward:
-        if (forward and jump):
+        if (forward and jump and not(peakHeight)):
             ray = (0,.25, -.25)
         else:
             ray = (0,0,-.25)
     elif backwards:
-        if (backwards and jump):
+        if (backwards and jump and not(peakHeight)):
             ray = (0,.25,.25)
         else:
             ray = (0,0,.25)
     elif left:
-        if left and jump:
+        if left and jump and not(peakHeight):
             ray = (-.25,.25,0)
         else:
             ray = (-.25,0,0)
     elif right:
-        if right and jump:
+        if right and jump and not(peakHeight):
             ray = (.25,.25,0)
         else:
             ray = (.25,0,0)
-    elif jump:
+    elif jump and peakHeight == False:
         ray = (0,.1,0)
 
     if jump:
@@ -267,9 +272,10 @@ while True:
     #End of Movement Code
 
     #set max height of player jump
-    if player.pos.y >= 5 and 0 >= player.pos.z >= -120:
+    if player.pos.y >= 6 and 0 >= player.pos.z >= -120:
         ray = (ray[0], 0, ray[2])
-    elif player.pos.y >= 10 and -122.5 >= player.pos.z >= -135:
+        peakHeight = True
+    elif player.pos.y >= 11 and -122.5 >= player.pos.z >= -135:
         ray = (ray[0], 0, ray[2])
 
     #if player and first box share a position they collided, move back one spot to stop collision
@@ -290,15 +296,33 @@ while True:
 
     falling = True
 
+    if player.pos.z >= 2:
+        peakHeight = True
+    elif -105 > player.pos.z > -55:
+        peakHeight = True
+    elif -107.5 > player.pos.z > -112.5:
+        peakHeight = True
+    elif -115 > player.pos.z > -120:
+        peakHeight = True
+    elif -122.5 > player.pos.z > -127.5:
+        peakHeight = True
+    elif -130 > player.pos.z > -135:
+        peakHeight = True
+    elif player.pos.z < -135:
+        peakHeight = True
+
     ##Beggining of Floor1 Collision
 
     if not(jump) and -50 <= player.pos.z <= 0:
         if (player.pos.x <= -2 or player.pos.x >= 2):
             falling = True
+            peakHeight = True
         elif player.pos.y <= 1.1:
             falling = False
+            peakHeight = False
         elif player.pos.y > 1.1:
             falling = True
+            peakHeight = True
     
     ##End of Floor1 Collison
 
@@ -307,10 +331,13 @@ while True:
     if not(jump) and -105 <= player.pos.z <= -55:
         if (player.pos.x <= -2 or player.pos.x >= 2):
             falling = True
+            peakHeight = True
         elif player.pos.y <= 1.1:
             falling = False
+            peakHeight = False
         elif player.pos.y > 1.1:
             falling = True
+            peakHeight = True
             
     ##End of Floor2 Collision
 
@@ -319,9 +346,11 @@ while True:
     #Collision on top of firstBox
     if not(jump) and -22 <= player.pos.z <= -18 and player.pos.y <= firstBox.pos.y + 2:
         falling = False
+        peakHeight = False
         #Fall off sides of box
         if (player.pos.x < -2 or player.pos.x > 2):
             falling = True
+            peakHeight = True
 
     if ((player.pos.z - 1) == (firstBox.pos.z + 1)) and (player.pos.y - 1 < firstBox.pos.y + 1):
         #print("Collided with firstBox")
@@ -339,11 +368,14 @@ while True:
         #print("movingPlatform")
         if(player.pos.x < (movingPlatform.pos.x - 5)) or (player.pos.x > (movingPlatform.pos.x + 5)):
             falling = True
+            peakHeight = True
         elif player.pos.y <= 1.1:
             falling = False
+            peakHeight = False
             player.pos.x = player.pos.x + (v_Platform * dtPlatform)
         elif player.pos.y > 1.1:
-            falling = True       
+            falling = True
+            peakHeight = True
 
     ##End of movingPlatform Collision
 
@@ -353,11 +385,14 @@ while True:
         #print("movingPlatform")
         if(player.pos.x < (movingPlatform2.pos.x - 5)) or (player.pos.x > (movingPlatform2.pos.x + 5)):
             falling = True
+            peakHeight = True
         elif player.pos.y <= 1.1:
             falling = False
+            peakHeight = False
             player.pos.x = player.pos.x + (v_Platform2 * dtPlatform2)
         elif player.pos.y > 1.1:
             falling = True
+            peakHeight = True
 
     ##End of movingPlatform2 Collision
 
@@ -367,11 +402,14 @@ while True:
         #print("movingPlatform")
         if(player.pos.x < (movingPlatform3.pos.x - 5)) or (player.pos.x > (movingPlatform3.pos.x + 5)):
             falling = True
+            peakHeight = True
         elif player.pos.y <= movingPlatform3.pos.y + 1:
             falling = False
+            peakHeight = False
             player.pos.y = player.pos.y + (v_Platform3 * dtPlatform3)
         elif player.pos.y > movingPlatform3.pos.y + 1:
             falling = True
+            peakHeight = True
             
     ##End of movingPlatform3 Collision
 
@@ -380,11 +418,14 @@ while True:
     if not(jump) and -130 >= player.pos.z >= -135:
         if (player.pos.x <= floor3.pos.x - 5 or player.pos.x >= floor3.pos.x + 5):
             falling = True
+            peakHeight = True
         #elif 5 <= player.pos.y <= 5.2:
         elif not(jump) and player.pos.y - 1 > floor3.pos.y + .1:
             falling = True
+            peakHeight = True
         elif not(jump) and player.pos.y - 1 <= floor3.pos.y +.1:
             falling = False
+            peakHeight = False
             gameover = True
 
     ##End of floor3 Collision
@@ -392,7 +433,7 @@ while True:
     #Beggining Log Collision
 
     if not(jump) and -55 >= player.pos.z >= -105:
-        if not(jump) and log.pos.y - .5 <= player.pos.y - 1 <= log.pos.y + .5 and log.pos.z - .5 <= player.pos.z <= log.pos.z + .5:
+        if not(jump) and log.pos.y - .5 <= player.pos.y - 1 <= log.pos.y + .5 and (log.pos.z - .5 <= player.pos.z <= log.pos.z + .5 or log.pos.z - .5 <= player.pos.z - 1 <= log.pos.z + .5 or log.pos.z - .5 <= player.pos.z + 1 <= log.pos.z + .5):
             print("top")
             player.pos.z = player.pos.z + 2 * v
         #Checks if Player sides are hitting log
