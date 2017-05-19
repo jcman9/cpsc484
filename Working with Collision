@@ -55,7 +55,7 @@ movingPlatform3 = box(pos = (0,0,-125), size = (.2,10,5), axis = (0,1,0), color 
 #floor3 z values go from (0,0,-130) to (0,0,-135)
 floor3 = box(pos =(0,5, -132.5), size = (.2,10,5), axis = (0,1,0), color = color.orange, material = materials.wood)
 
-player = box (pos = (0,1.1,-2), size = (2,2,2), axis = (0,1,0), color = color.blue)
+player = box (pos = (0,1.1,-2), size = (2,2,2), axis = (0,1,0), color = color.blue, opacity = 0.3)
 
 #first box z values go from (0,0,-18) to (0,0,-22)
 firstBox = box(pos = (0,1,-20), size = (2,2,2), axis = (0,1,0), color = color.orange, material = materials.wood)
@@ -94,27 +94,31 @@ firstBox = box(pos = (0,1,-20), size = (2,2,2), axis = (0,1,0), color = color.or
 ##dy = spacing/20
 ##top = Nrings-1
 ##
-### Roll a log back and forth
-##rlog = 1
-##wide = 4
-##zpos = 2
-##zface = 5
-##tlogend = 0.2
-##v0 = 1
-##v = v0
-##omega = -v0/rlog
-##theta = 0
-##dt = 0.1
-##tstop = 0.3
-##log = frame(pos=(-wide,rlog,zpos), axis=(0,0,1))
-##cylinder(frame=log,
-##         pos=(0,0,0), axis=(zface-zpos,0,0),
-##         color=(0.8,0.5,0), opacity=0.5)
+
+## Roll a log back and forth
+rlog = 1
+wide = 4
+zpos = 2
+zface = 4
+#tlogend = 0.2
+v0 = 1
+v = v0
+omega = -v0/rlog
+theta = 0
+dt = 0.1
+tstop = 0.3
+#log = frame(pos=(-wide,rlog,zpos), axis=(1,0,0))
+#cylinder(frame=log,
+#         pos=(3,-.5,-105), axis=(zface-zpos,0,0),radius= .5,
+#         color=(0.8,0.5,0))
+
+log = cylinder(pos = (-1,.6,-105), axis = (1,0,0), length = 2, radius = .5, material = materials.wood)
+
 ##box(frame=log,
 ##    pos=(zface-zpos+tlogend/2.+.01,0,0), axis=(0,0,1),
 ##    length=rlog, height=rlog, width=tlogend,
 ##    color=color.yellow, opacity=0.5)
-##
+
 ##leftstop = box(pos=(-wide-rlog-tstop/2,0.6*rlog,(zpos+zface)/2),
 ##    length=tstop, height=1.2*rlog, width=(zface-zpos), color=color.red)
 ##rightstop = box(pos=(wide+rlog+tstop/2,0.6*rlog,(zpos+zface)/2),
@@ -165,6 +169,8 @@ def keyRelease(evt):
         elif (s == ' '):
             jump = False
 
+
+
 scene.bind('keydown', keyInput)
 scene.bind('keyup', keyRelease)
 
@@ -193,7 +199,7 @@ dtPlatform2 = .125
 v_Platform3 = 1
 v0_Platform3 = 1
 dtPlatform3 = .1
-
+         
 while True:
 
     # If in roaming mode, change center and forward according to mouse position
@@ -379,7 +385,7 @@ while True:
         ray = (ray[0], -.15, ray[1])
 
     player.pos = player.pos + ray
-    scene.center = player.pos + (0, 0, 5)
+    scene.center = player.pos + (0, 0.3, 5)
 
     if player.pos.y <= -15:
         print("You Lose, Resetting")
@@ -389,19 +395,21 @@ while True:
 
         
     # Roll the log
-##    theta = theta + omega*dt
-##    log.x = log.x+v*dt
-##    log.rotate(angle=omega*dt)
-##    if log.x >= wide:
-##        v = -v0
-##        omega = -v/rlog
-##        if rightstop.color == color.red:
-##            rightstop.color = color.blue
-##        else:
-##            rightstop.color = color.red
-##    if log.x <= -wide:
-##        v = +v0
-##        omega = -v/rlog
+    theta = theta + omega*dt
+    print (theta)
+    print (omega)
+    log.z = log.z+v*dt
+    log.rotate(angle=omega*dt)
+    if log.z >= -55:
+       v = -v0
+       omega = -v/rlog
+####        if rightstop.color == color.red:
+####            rightstop.color = color.blue
+####        else:
+####            rightstop.color = color.red
+    if log.z <= -105:
+        v = +v0
+        omega = -v/rlog
 ##        if leftstop.color == color.red:
 ##            leftstop.color = color.blue
 ##        else:
