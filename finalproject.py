@@ -2,10 +2,10 @@ from visual import *
 import time
 
 print("""
-Press to enter roaming mode, release to exit roaming mode.
-In roaming mode, with the mouse button down, move the mouse
-above or below the center of the scene to move forward or
-backward; right or left rotates your direction of motion.
+Use "W,S,A,D" for moving forwards, backwards, left and right respectively. Use spacebar
+to jump over gaps and jump onto platforms. If you fall, the game resets.
+
+Created by Richard Erdtsieck and Josh Manulat
 """)
 
 
@@ -107,10 +107,12 @@ omega = -v0/rlog
 theta = 0
 dt = 0.1
 tstop = 0.3
-log = frame(pos=(-wide,rlog,zpos), axis=(1,0,0))
-cylinder(frame=log,
-         pos=(3,-.5,-105), axis=(zface-zpos,0,0),radius= .5,
-         color=(0.8,0.5,0))
+#log = frame(pos=(-wide,rlog,zpos), axis=(1,0,0))
+#cylinder(frame=log,
+#         pos=(3,-.5,-105), axis=(zface-zpos,0,0),radius= .5,
+#         color=(0.8,0.5,0))
+
+log = cylinder(pos = (-1,.6,-105), axis = (1,0,0), length = 2, radius = .5, material = materials.wood)
 
 ##box(frame=log,
 ##    pos=(zface-zpos+tlogend/2.+.01,0,0), axis=(0,0,1),
@@ -175,6 +177,7 @@ scene.bind('keyup', keyRelease)
 global forward, backwards, left, right, jump, ray, falling, v_Platform, v0_Platform, dtPlatform
 global dtPlatform2, v_Platform2, v0_Platform2
 global dtPlatform3, v_Platform3, v0_Platform3
+global peakHeight
 global gameover
 forward = False
 backwards = False
@@ -182,6 +185,7 @@ left = False
 right = False
 jump = False
 falling = False
+peakHeight = False
 ray = (0,0,0)
 
 gameover = False
@@ -204,7 +208,7 @@ while True:
 
     ray = (0,0,0)
 
-    ##Moving Platform movement
+    ##Object Movement
     if movingPlatform.pos.x >= 20:
         v_Platform = -v0_Platform
     elif movingPlatform.pos.x <= -20:
@@ -223,28 +227,41 @@ while True:
         v_Platform3 = -v0_Platform3
     movingPlatform3.pos.y = movingPlatform3.pos.y + v_Platform3 * dtPlatform3
 
+    # Roll the log
+    theta = theta + omega*dt
+    #print (theta)
+    #print (omega)
+    log.z = log.z+v*dt
+    log.rotate(angle=omega*dt)
+    if log.z >= -55:
+       v = -v0
+       omega = -v/rlog
+    if log.z <= -105:
+        v = +v0
+        omega = -v/rlog
+        
     #Begining of movement code
     if forward:
-        if (forward and jump):
+        if (forward and jump and not(peakHeight)):
             ray = (0,.25, -.25)
         else:
             ray = (0,0,-.25)
     elif backwards:
-        if (backwards and jump):
+        if (backwards and jump and not(peakHeight)):
             ray = (0,.25,.25)
         else:
             ray = (0,0,.25)
     elif left:
-        if left and jump:
+        if left and jump and not(peakHeight):
             ray = (-.25,.25,0)
         else:
             ray = (-.25,0,0)
     elif right:
-        if right and jump:
+        if right and jump and not(peakHeight):
             ray = (.25,.25,0)
         else:
             ray = (.25,0,0)
-    elif jump:
+    elif jump and peakHeight == False:
         ray = (0,.1,0)
 
     if jump:
@@ -254,6 +271,7 @@ while True:
     #set max height of player jump
     if player.pos.y >= 5 and 0 >= player.pos.z >= -120:
         ray = (ray[0], 0, ray[2])
+        peakHeight = True
     elif player.pos.y >= 10 and -122.5 >= player.pos.z >= -135:
         ray = (ray[0], 0, ray[2])
 
@@ -282,6 +300,7 @@ while True:
             falling = True
         elif player.pos.y <= 1.1:
             falling = False
+            peakHeight = False
         elif player.pos.y > 1.1:
             falling = True
     
@@ -294,6 +313,7 @@ while True:
             falling = True
         elif player.pos.y <= 1.1:
             falling = False
+            peakHeight = False
         elif player.pos.y > 1.1:
             falling = True
             
@@ -372,9 +392,20 @@ while True:
             falling = False
             gameover = True
 
-
     ##End of floor3 Collision
 
+    #Beggining Log Collision
+
+    if not(jump) and -55 >= player.pos.z >= -105:
+        if not(jump) and log.pos.y - .5 <= player.pos.y - 1 <= log.pos.y + .5 and log.pos.z - .5 <= player.pos.z <= log.pos.z + .5:
+            print("top")
+            player.pos.z = player.pos.z + 2 * v
+        #Checks if Player sides are hitting log
+        elif not(jump) and ((log.pos.z + .5 >= player.pos.z - 1 >= log.pos.z - .5) or log.pos.z + .5 >= player.pos.z + 1 >= log.pos.z - .5):
+            #print("side")
+            player.pos.z = player.pos.z + v * dt
+
+    #End of Log Collision
 
     if gameover == True:
         print("Congratulations you WIN!")
@@ -389,30 +420,7 @@ while True:
         print("You Lose, Resetting")
         player.pos = (0,1.2,-2)
         scene.center = player.pos + (0,0,5)
-
-
         
-    # Roll the log
-    theta = theta + omega*dt
-    print (theta)
-    print (omega)
-    log.z = log.z+v*dt
-    log.rotate(angle=omega*dt)
-    if log.z >= -55:
-       v = -v0
-       omega = -v/rlog
-####        if rightstop.color == color.red:
-####            rightstop.color = color.blue
-####        else:
-####            rightstop.color = color.red
-    if log.z <= -105:
-        v = +v0
-        omega = -v/rlog
-##        if leftstop.color == color.red:
-##            leftstop.color = color.blue
-##        else:
-##            leftstop.color = color.red
-##
 ##    # Move the cloud
 ##    cloud.rotate(angle=omegacloud*dt, origin=(0,0,0), axis=(0,1,0))
 ##
