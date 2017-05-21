@@ -2,8 +2,8 @@ from visual import *
 import time
 
 print("""
-Use "W,S,A,D" for moving forwards, backwards, left and right respectively. Use spacebar
-to jump over gaps and jump onto platforms. If you fall, the game resets.
+Use "W,S,A,D" for moving forwards, backwards, strafe left and strafe right respectively. Use spacebar
+to jump over gaps and jump onto platforms. If you fall, the game resets.  Reach the final platform to win.
 
 Created by Richard Erdtsieck and Josh Manulat
 """)
@@ -432,12 +432,12 @@ while True:
         ray = (ray[0], -.15, ray[1])
 
     player.pos = player.pos + ray
-    scene.center = player.pos + (0, 0.3, 5)
+    scene.center = player.pos + (0, 0.3, 10)
 
     if player.pos.y <= -15:
         print("You Lose, Resetting")
         player.pos = (0,1.2,-2)
-        scene.center = player.pos + (0,0,5)
+        scene.center = player.pos + (0,0,10)
         
 ##    # Move the cloud
 ##    cloud.rotate(angle=omegacloud*dt, origin=(0,0,0), axis=(0,1,0))
